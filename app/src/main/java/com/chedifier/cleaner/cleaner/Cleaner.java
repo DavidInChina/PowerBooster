@@ -20,7 +20,6 @@ public class Cleaner {
         sHead = new StepCheckAccessPermission(context)
                 .setNext(new StepCheckOverlayPermission(context)
                 .setNext(new StepClean(context)));
-
         sHead.doAction();
     }
 

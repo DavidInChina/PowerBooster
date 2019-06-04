@@ -1,16 +1,15 @@
 package com.chedifier.cleaner.cleaner;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.chedifier.cleaner.R;
 import com.chedifier.cleaner.base.ClickHandler;
@@ -55,25 +53,27 @@ public class CleanUI {
     private long mOldAvaiableMem = 0;
     private long mNewAvaiableMen = 0;
 
-    public CleanUI(Context context){
+    public CleanUI(Context context) {
         mAppContext = context.getApplicationContext();
         initView();
     }
 
-    private void initView(){
-        mWLParams = new WindowManager.LayoutParams();
-        if(Build.VERSION.SDK_INT > 24){
-            mWLParams.type = 2038;
-        }else{
-            mWLParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+    @SuppressLint("ClickableViewAccessibility")
+    private void initView() {
+        mWLParams =  new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSPARENT
+        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mWLParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            mWLParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
         }
         mWLParams.format = PixelFormat.RGBA_8888;
-        mWLParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                |WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                |WindowManager.LayoutParams.FLAG_FULLSCREEN
-                |WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-        mWLParams.gravity = Gravity.TOP|Gravity.CENTER_HORIZONTAL;
-        mWLParams.height = ScreenUtils.getScreenSize(mAppContext)[1];
+        mWLParams.gravity = Gravity.CENTER;
         mWLParams.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
         mLayout = new LinearLayout(mAppContext);
@@ -83,26 +83,26 @@ public class CleanUI {
         int[] screenSize = ScreenUtils.getScreenSize(mAppContext);
 
         mTextView = new TextView(mAppContext);
-        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
+        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         mTextView.setTextColor(0xff171717);
-        mTextView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
+        mTextView.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
 
         mScroller = new ScrollView(mAppContext);
         mScroller.addView(mTextView);
         mScroller.setFillViewport(true);
         mScroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
         mScroller.setVerticalScrollBarEnabled(false);
-        mScroller.setPadding(0,0,0,ScreenUtils.dip2px(mAppContext,20));
+        mScroller.setPadding(0, 0, 0, ScreenUtils.dip2px(mAppContext, 20));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                screenSize[1]*2/3);
-        lp.topMargin = ScreenUtils.dip2px(mAppContext,40);
+                screenSize[1] * 2 / 3);
+        lp.topMargin = ScreenUtils.dip2px(mAppContext, 40);
         lp.gravity = Gravity.CENTER;
-        mLayout.addView(mScroller,lp);
+        mLayout.addView(mScroller, lp);
 
         mProgressBar = new SeekBar(mAppContext);
         mProgressBar.setBackgroundColor(Color.TRANSPARENT);
-        mProgressBar.setPadding(0,0,0,0);
+        mProgressBar.setPadding(0, 0, 0, 0);
         mProgressBar.setProgressDrawable(mAppContext.getResources().getDrawable(R.drawable.progress_drawable));
         mProgressBar.setThumb(null);
         mProgressBar.setOnTouchListener(new View.OnTouchListener() {
@@ -112,20 +112,20 @@ public class CleanUI {
             }
         });
 
-        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mAppContext,4));
-        lp.topMargin =  ScreenUtils.dip2px(mAppContext,12);
-        lp.leftMargin = screenSize[0]/6;
-        lp.rightMargin = screenSize[0]/6;
-        mLayout.addView(mProgressBar,lp);
+        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mAppContext, 4));
+        lp.topMargin = ScreenUtils.dip2px(mAppContext, 12);
+        lp.leftMargin = screenSize[0] / 6;
+        lp.rightMargin = screenSize[0] / 6;
+        mLayout.addView(mProgressBar, lp);
 
         mProgressTips = new TextView(mAppContext);
         mProgressTips.setGravity(Gravity.CENTER);
         mProgressTips.setTextColor(0xFF303F9F);
-        mProgressTips.setTextSize(TypedValue.COMPLEX_UNIT_SP,13);
-        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.topMargin =  ScreenUtils.dip2px(mAppContext,12);
+        mProgressTips.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = ScreenUtils.dip2px(mAppContext, 12);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
-        mLayout.addView(mProgressTips,lp);
+        mLayout.addView(mProgressTips, lp);
 
         mImageButton = new ImageButton(mAppContext);
         mImageButton.setBackgroundColor(Color.TRANSPARENT);
@@ -134,24 +134,24 @@ public class CleanUI {
         mClickHandler = new ClickHandler(mImageButton, new ClickHandler.IOnMuliClickListener() {
             @Override
             public void onMultiClick(View v, int times) {
-                Log.i(TAG,"onMultiClick: " + times);
-                if(times == 2){
+                Log.i(TAG, "onMultiClick: " + times);
+                if (times == 2) {
                     Cleaner.stop(mAppContext);
-                }else if(times >= 3){
+                } else if (times >= 3) {
                     Cleaner.exit(mAppContext);
-                }else{
+                } else {
                     //onTaskStart("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
                 }
             }
         });
 
-        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.topMargin =  ScreenUtils.dip2px(mAppContext,2);
+        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = ScreenUtils.dip2px(mAppContext, 2);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
-        mLayout.addView(mImageButton,lp);
+        mLayout.addView(mImageButton, lp);
     }
 
-    private void updateContent(){
+    private void updateContent() {
         mTextView.setText(mContent.toString());
 
         mScroller.post(new Runnable() {
@@ -162,7 +162,7 @@ public class CleanUI {
         });
     }
 
-    public void onStart(int total){
+    public void onStart(int total) {
         mTotal = total;
         mContent = new StringBuilder(128);
         mContent.append("start clean...\n\n");
@@ -176,7 +176,7 @@ public class CleanUI {
         mOldAvaiableMem = SystemUtils.getMemoryInfo(mAppContext).availMem;
     }
 
-    public void onTaskStart(String pkgName){
+    public void onTaskStart(String pkgName) {
         mProgress++;
         mProgressBar.setProgress(mProgress);
         mProgressTips.setText(mProgress + "/" + mTotal);
@@ -184,35 +184,34 @@ public class CleanUI {
         updateContent();
     }
 
-    public void onResult(CleanMasterAccessbilityService.TASK_STATE state){
-        if(state != null){
+    public void onResult(CleanMasterAccessbilityService.TASK_STATE state) {
+        if (state != null) {
             mContent.append(state.name());
         }
-
         mContent.append("\n");
     }
 
-    public void onStop(List<String> stubbornApps){
+    public void onStop(List<String> stubbornApps) {
 
         mContent.append("\n");
 
-        if(mProgress >= mTotal){
+        if (mProgress >= mTotal) {
             mContent.append("clean successed!").append("\n");
-        }else{
+        } else {
             mContent.append("clean stoped!").append("\n");
         }
 
         mNewAvaiableMen = SystemUtils.getMemoryInfo(mAppContext).availMem;
-        String opt  = "opt " + Formatter.formatFileSize(mAppContext,mOldAvaiableMem)
-                + " > " + Formatter.formatFileSize(mAppContext,mNewAvaiableMen)
-                + " freed: " + (mNewAvaiableMen < mOldAvaiableMem?"-":"") + Formatter.formatFileSize(mAppContext,(Math.abs(mNewAvaiableMen-mOldAvaiableMem)));
+        String opt = "opt " + Formatter.formatFileSize(mAppContext, mOldAvaiableMem)
+                + " > " + Formatter.formatFileSize(mAppContext, mNewAvaiableMen)
+                + " freed: " + (mNewAvaiableMen < mOldAvaiableMem ? "-" : "") + Formatter.formatFileSize(mAppContext, (Math.abs(mNewAvaiableMen - mOldAvaiableMem)));
 
         mContent.append("\n\n").append(opt).append("\n");
-        mContent.append("total memory: " + Formatter.formatFileSize(mAppContext,SystemUtils.getMemoryInfo(mAppContext).totalMem)).append("\n");
+        mContent.append("total memory: " + Formatter.formatFileSize(mAppContext, SystemUtils.getMemoryInfo(mAppContext).totalMem)).append("\n");
 
-        if(stubbornApps != null && stubbornApps.size() > 0){
-            mContent.append("\n\nthose " + stubbornApps.size() +  " packages stop failed: \n\n");
-            for(String s:stubbornApps){
+        if (stubbornApps != null && stubbornApps.size() > 0) {
+            mContent.append("\n\nthose " + stubbornApps.size() + " packages stop failed: \n\n");
+            for (String s : stubbornApps) {
                 mContent.append(s).append("\n");
             }
         }
@@ -220,18 +219,16 @@ public class CleanUI {
         updateContent();
     }
 
-    public void show(boolean show){
-        if(mShowing == show){
+    public void show(boolean show) {
+        if (mShowing == show) {
             return;
         }
-
-        WindowManager wmgr = (WindowManager)mAppContext.getSystemService(Context.WINDOW_SERVICE);
-        if(show){
+        WindowManager wmgr = (WindowManager) mAppContext.getSystemService(Context.WINDOW_SERVICE);
+        if (show) {
             wmgr.addView(mLayout, mWLParams);
-        }else{
+        } else {
             wmgr.removeView(mLayout);
         }
-
         mShowing = show;
     }
 

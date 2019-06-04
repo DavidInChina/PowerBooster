@@ -15,17 +15,18 @@ public class StepClean extends Step {
 
     private BaseActivity mActivity;
 
-    public StepClean(BaseActivity activity){
+    public StepClean(BaseActivity activity) {
         mActivity = activity;
     }
 
     @Override
     public void doAction() {
-        try{
-            Intent i = new Intent(mActivity,CleanMasterAccessbilityService.class);
+        try {
+            new CleanUI(mActivity).show(true);
+            Intent i = new Intent(mActivity, CleanMasterAccessbilityService.class);
             i.setAction(CleanMasterAccessbilityService.ACT_CLEAN);
             mActivity.startService(i);
-        }catch (Throwable t){
+        } catch (Throwable t) {
             t.printStackTrace();
         }
     }
